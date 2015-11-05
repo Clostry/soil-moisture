@@ -44,15 +44,16 @@
 #include "G4Colour.hh"
 #include "G4PhysicalConstants.hh"
 #include "G4SystemOfUnits.hh"
+#include "G4NistManager.hh"
+
 
 
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo....
 
 GeometryConstruction::GeometryConstruction()
 : G4VUserDetectorConstruction(),
-  fUniverse_phys(0),
-  fAl_phys(0),
-  fSphere_phys(0)
+  physWorld(0),
+  physSoil(0)
 {;}
 
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo....
@@ -64,98 +65,76 @@ GeometryConstruction::~GeometryConstruction()
 
 G4VPhysicalVolume* GeometryConstruction::Construct()
 {
-  //
-  //
-  // Define materials.
-  //
-  G4double a, z, density,pressure, temperature;
-  G4String name, symbol;
 
- 
-  density     = universe_mean_density;    //from PhysicalConstants.h
-  pressure    = 3.e-18*pascal;
-  temperature = 2.73*kelvin;
-  G4Material* Vacuum   = new G4Material("Vacuum",
-                                        1., 1.01*g/mole, density,
-                                        kStateGas,temperature,pressure);    
-  a = 26.98154*g/mole;
-  density = 2.70*g/cm3;
-  G4Material* Aluminium = new G4Material(name="aluminium", z=13., a, density);
+  G4NistManager* nist = G4NistManager::Instance();
 
-  a = 28.0855*g/mole;
-  G4Element* elSi = new G4Element(name="silicon", symbol="Si", z=14., a);
+  G4bool checkOverlaps = true;
 
-  a = 16.00*g/mole;
-  G4Element* elO = new G4Element(name="Oxygen", symbol="O", z=8., a);
+// Dimensions
 
-  density = 2.65*g/cm3;
-  G4Material* SiliconDioxide =
-    new G4Material(name="silicon oxide", density, 2);
-  SiliconDioxide->AddElement(elSi, 1);
-  SiliconDioxide->AddElement(elO,  2);
-  //
-  // Define size of world and volumes in it.
-  //
-  G4double world_r = 20*cm;
+  G4double world_sizeXY = 5.*m;
+  G4double world_sizeZ  = 5.*m;
 
-  G4double box_x = 10*cm;
-  G4double box_y = 10*cm;
-  G4double box_z = 10*cm;
+  G4double soil_sizeXY = 5.*m;
+  G4double soil_sizeZ = 3.*m;
 
-  G4double sphere_r = 5*cm;
+// Materials
 
-  // Define bodies, logical volumes and physical volumes.
-  // First define the experimental hall.
-  //
-  G4Box * universe_s 
-    = new G4Box("universe_s", world_r, world_r, world_r);
-  G4LogicalVolume * universe_log
-    = new G4LogicalVolume(universe_s,Vacuum,"universe_L");
-  //
-  fUniverse_phys
-    = new G4PVPlacement(0,G4ThreeVector(),"universe_P",
-                        universe_log,0,false,0);
-                        
-  //define an aluminium box
-  //
-  G4Box * Al_box
-    = new G4Box("Al_b", box_x, box_y, box_z);
-  G4LogicalVolume * Al_log
-    = new G4LogicalVolume(Al_box,Aluminium,"Box_log");
-  //
-  fAl_phys
-    = new G4PVPlacement(0,G4ThreeVector(0.,0.,0.),"Box_phys",
-                        Al_log,fUniverse_phys,false,0);
-/*
-  // Define an inner sphere.
-  //
-   G4Sphere * aSphere_sph
-    = new G4Sphere("aSphere", 0, sphere_r, 0, twopi, 0, pi);
-  G4LogicalVolume * aSphere_log
-    = new G4LogicalVolume(aSphere_sph,SiliconDioxide,"Sphere_log");
-  //
-  fSphere_phys
-    = new G4PVPlacement(0,G4ThreeVector(0.,0.,0.),"Sphere_phys",aSphere_log,
-                        fAl_phys,false,0);
-  */
-  G4Box * aSphere_sph
-    = new G4Box("aSphere", sphere_r, sphere_r, sphere_r );
-  G4LogicalVolume * aSphere_log
-    = new G4LogicalVolume(aSphere_sph,SiliconDioxide,"Sphere_log");
-  //
-  fSphere_phys
-    = new G4PVPlacement(0,G4ThreeVector(0.,0.,0.),"Sphere_phys",aSphere_log,
-                        fAl_phys,false,0);
-  
-//--------- Visualization attributes -------------------------------
-/*  universe_log->SetVisAttributes(G4VisAttributes::Invisible);
-  G4VisAttributes* aVisAtt= new G4VisAttributes(G4Colour(0,1.0,1.0));
-  Al_log->SetVisAttributes(aVisAtt);
-  G4VisAttributes* bVisAtt= new G4VisAttributes(G4Colour(1.0,2.0,.0));
-  aSphere_log->SetVisAttributes(bVisAtt);
-*/
+  G4Material* air = nist->FindOrBuildMaterial("G4_AIR");
 
-  return fUniverse_phys;
+  G4double densitySoil = 2.70*g/cm3; 
+  G4Material* SiO2 = nist->FindOrBuildMaterial("G4_SILICON_DIOXIDE");
+  G4Material* H2O = nist->FindOrBuildMaterial("G4_WATER");
+
+  G4Material* materialSoil = new G4Material("Soil",densitySoil
+		  ,2);  //number of components
+
+  G4double water_volvol_ratio = 0.1;
+  G4double densityWater = 1*g/cm3;
+  G4double water_mass_ratio =
+	  densityWater * water_volvol_ratio / 
+	  (densitySoil*(1-water_volvol_ratio)+densityWater*water_volvol_ratio);
+
+  materialSoil->AddMaterial(SiO2, 
+		  (1-water_mass_ratio)); //fraction mass
+  materialSoil->AddMaterial(H2O, water_mass_ratio);
+
+  // Volumes
+
+  G4Box* solidWorld =
+	  new G4Box("World",                       //its name
+			  world_sizeXY, world_sizeXY, world_sizeZ);      //its size
+
+  G4LogicalVolume* logicWorld =
+	  new G4LogicalVolume(solidWorld, air, "World");      
+
+  physWorld =
+	  new G4PVPlacement(0,                     //no rotation
+			  G4ThreeVector(),       //at (0,0,0)
+			  logicWorld,            //its logical volume
+			  "World",               //its name
+			  0,                     //its mother  volume
+			  false,                 //no boolean operation
+			  0,                     //copy number
+			  checkOverlaps);        //overlaps checking
+
+  G4Box* solidSoil =
+	  new G4Box("Soil", soil_sizeXY, soil_sizeXY, soil_sizeZ);
+
+  G4LogicalVolume* logicSoil =
+	  new G4LogicalVolume(solidSoil, materialSoil, "Soil");
+
+  physSoil = 
+	  new G4PVPlacement(0,
+			  G4ThreeVector(0,0,soil_sizeZ-world_sizeZ),
+			  logicSoil,
+			  "Soil",
+			  logicWorld,
+			  0,
+			  false,
+			  checkOverlaps);
+
+  return physWorld;
 }
 
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo....

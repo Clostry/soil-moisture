@@ -50,9 +50,8 @@ class GeometryConstruction : public G4VUserDetectorConstruction
     virtual G4VPhysicalVolume* Construct();
 
   private:
-    G4VPhysicalVolume* fUniverse_phys;
-    G4VPhysicalVolume* fAl_phys;
-    G4VPhysicalVolume* fSphere_phys;
+    G4VPhysicalVolume* physWorld;
+    G4VPhysicalVolume* physSoil;
 };
     
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
