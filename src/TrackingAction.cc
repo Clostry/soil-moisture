@@ -48,11 +48,15 @@ TrackingAction::TrackingAction()
 
 void TrackingAction::PreUserTrackingAction(const G4Track* track)
 {
+  if (track->GetParentID() == 0)
+  {
   G4int pid               = track->GetDynamicParticle()->GetPDGcode();
   G4double ekin           = track->GetKineticEnergy();
   G4ThreeVector vertex    = track->GetPosition();
   G4ThreeVector direction = track->GetMomentumDirection();
   G4double weight         = track->GetWeight();
+
+//  G4cout << track->GetParentID() << " " << track->GetTrackID() << G4endl;
    
   G4double x = vertex.x(), y = vertex.y(), z = vertex.z();
   G4double theta = direction.theta(), phi = direction.phi();
@@ -86,6 +90,7 @@ void TrackingAction::PreUserTrackingAction(const G4Track* track)
   analysisManager->FillNtupleDColumn(6,phi);
   analysisManager->FillNtupleDColumn(7,weight);
   analysisManager->AddNtupleRow();  
+  }
 }
 
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo....

@@ -23,16 +23,13 @@
 # commands below are independent of gps
 #
 /analysis/setFileName prova1 
-/analysis/h1/set 1 100 0.01 1000000000 eV
-/analysis/h2/set 1 100 -5 5 m none linear 100 -5 5 m none linear 
-/analysis/h2/set 4 120 0 360 deg none linear 100 -1 1 none none linear
+/analysis/h1/set 1 100 0.01 10000000000 eV
+/analysis/h1/set 5 100 0.01 10000000000 eV
+#/analysis/h2/set 1 100 -5 5 m none linear 100 -5 5 m none linear 
+#/analysis/h2/set 4 120 0 360 deg none linear 100 -1 1 none none linear
 #
 #/control/execute vis.mac
 #
-/run/printProgress 100
+/run/printProgress 1000
 #
-/run/beamOn 1000
-
-
-
-
+/run/beamOn 10000

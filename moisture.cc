@@ -51,6 +51,7 @@
 #include "ActionInitialization.hh"
 #include "Randomize.hh"
 #include "G4PhysListFactory.hh"
+#include "G4ScoringManager.hh"
 
 
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo.....
@@ -69,6 +70,9 @@ int main(int argc,char** argv) {
 #else
   G4RunManager * runManager = new G4RunManager;
 #endif
+
+  // activate scoring manager
+  G4ScoringManager::GetScoringManager();
 
   // set mandatory initialization classes
   GeometryConstruction* detector = new GeometryConstruction;

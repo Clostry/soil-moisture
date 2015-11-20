@@ -33,6 +33,7 @@
 
 #include "HistoManager.hh"
 #include "G4UnitsTable.hh"
+#include "G4SystemOfUnits.hh"
 
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
 
@@ -86,6 +87,8 @@ void HistoManager::Book()
   id = analysis->CreateH1("h1.4","direction: phi", nbins, vmin, vmax);
   analysis->SetH1Activation(id, false);  
 
+  id = analysis->CreateH1("h1.5","Energia", 100, 0, 10*GeV);
+  analysis->SetH1Activation(id, false);  
   // histos 2D
   //
   id = analysis->CreateH2("h2.1","vertex: XY",nbins,vmin,vmax, nbins,vmin,vmax);
