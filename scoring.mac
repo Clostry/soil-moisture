@@ -1,0 +1,115 @@
+/run/initialize
+
+########################################
+#
+# define scoring mesh
+#
+/score/create/boxMesh boxMesh_1
+#
+/score/mesh/boxSize 500. 500. 50. cm
+/score/mesh/nBin 1 1 1
+/score/mesh/translate/xyz 0 0 3 m 
+#
+#/score/quantity/energyDeposit eDep
+#/score/quantity/nOfStep nOfStepGamma
+#/score/filter/particle gammaFilter gamma
+#/score/quantity/nOfStep nOfStepEMinus
+#/score/filter/particle eMinusFilter e-
+#/score/quantity/nOfStep nOfStepEPlus
+#/score/filter/particle ePlusFilter e+
+
+/score/quantity/nOfTrack nOfTrackNeV
+/score/filter/particleWithKineticEnergy fNeV 0 1000 eV neutron 
+/score/quantity/nOfTrack nOfTrackNkeV
+/score/filter/particleWithKineticEnergy fNkeV 1 1000 keV neutron 
+/score/quantity/nOfTrack nOfTrackNMeV
+/score/filter/particleWithKineticEnergy fNMeV 1 1000 MeV neutron 
+/score/quantity/nOfTrack nOfTrackNGeV
+/score/filter/particleWithKineticEnergy fNGeV 1 1000 GeV neutron 
+
+#/score/quantity/flatSurfaceFlux flatSurfaceFluxN
+#/score/filter/particle Nfilter neutron 
+#/score/quantity/flatSurfaceCurrent flatSurfaceCurrentN
+#/score/filter/particle Nfilter neutron 
+#/score/quantity/nOfSecondary nOfSecondaryN
+#/score/filter/particle Nfilter neutron 
+#
+/score/close
+#
+/score/list
+#
+
+########################################
+#
+# define general particle source
+#
+/gps/particle neutron
+
+#rectangle plane source
+/gps/pos/type Plane
+/gps/pos/shape Rectangle
+/gps/pos/centre 0 0 5 m
+/gps/pos/halfx 5. m
+/gps/pos/halfy 5. m
+
+/gps/ang/type planar
+/gps/direction 0 0 -1
+
+# power-law energy distr.
+/gps/ene/type Pow
+/gps/ene/min 0.01 eV
+/gps/ene/max 10. GeV
+/gps/ene/alpha -1.
+
+
+########################################
+#
+# define analysis framework
+#
+/analysis/setFileName scoring.root 
+/analysis/h1/set 1 1000 0.01 100 eV
+/analysis/h1/set 5 1000 0.01 10000000000 eV
+#/analysis/h2/set 1 100 -5 5 m none linear 100 -5 5 m none linear 
+#/analysis/h2/set 4 120 0 360 deg none linear 100 -1 1 none none linear
+
+
+
+########################################
+#
+# start beam
+#
+/run/printProgress 100
+/run/beamOn 1000
+
+########################################
+#
+# drawing projections
+#
+#/score/colorMap/setMinMax ! 0. 800.
+#/score/drawProjection boxMesh_1 nOfTrackN
+#/score/drawProjection boxMesh_1 flatSurfaceFluxN
+#/score/drawProjection boxMesh_1 flatSurfaceCurrentN
+#/score/drawProjection boxMesh_1 nOfSecondaryN
+#
+########################################
+#
+# drawing slices
+#
+#/vis/scene/create sceneM
+#/vis/sceneHandler/attach sceneM
+#/score/colorMap/setMinMax colmap 0. 800.
+#/control/loop drawSlice.mac iColumn 0 29 7
+#
+########################################
+#
+# Dump scores to a file
+#
+/score/dumpQuantityToFile boxMesh_1 nOfTrackNeV  ntrackseV.dat
+/score/dumpQuantityToFile boxMesh_1 nOfTrackNkeV ntrackskeV.dat
+/score/dumpQuantityToFile boxMesh_1 nOfTrackNMeV ntracksMeV.dat
+/score/dumpQuantityToFile boxMesh_1 nOfTrackNGeV ntracksGeV.dat
+#/score/dumpQuantityToFile boxMesh_1 flatSurfaceFluxN flux.dat
+#/score/dumpQuantityToFile boxMesh_1 flatSurfaceCurrentN current.dat
+#/score/dumpQuantityToFile boxMesh_1 nOfSecondaryN secondary.dat
+#
+#
