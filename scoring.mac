@@ -18,8 +18,10 @@
 #/score/quantity/nOfStep nOfStepEPlus
 #/score/filter/particle ePlusFilter e+
 
+/score/quantity/nOfTrack nOfTrackN
+/score/filter/particleWithKineticEnergy fN    0 1    eV neutron 
 /score/quantity/nOfTrack nOfTrackNeV
-/score/filter/particleWithKineticEnergy fNeV 0 1000 eV neutron 
+/score/filter/particleWithKineticEnergy fNeV  1 1000 eV neutron 
 /score/quantity/nOfTrack nOfTrackNkeV
 /score/filter/particleWithKineticEnergy fNkeV 1 1000 keV neutron 
 /score/quantity/nOfTrack nOfTrackNMeV
@@ -78,8 +80,8 @@
 #
 # start beam
 #
-/run/printProgress 100
-/run/beamOn 1000
+/run/printProgress 1000
+/run/beamOn 10000
 
 ########################################
 #
@@ -104,6 +106,7 @@
 #
 # Dump scores to a file
 #
+/score/dumpQuantityToFile boxMesh_1 nOfTrackN    ntracks.dat
 /score/dumpQuantityToFile boxMesh_1 nOfTrackNeV  ntrackseV.dat
 /score/dumpQuantityToFile boxMesh_1 nOfTrackNkeV ntrackskeV.dat
 /score/dumpQuantityToFile boxMesh_1 nOfTrackNMeV ntracksMeV.dat

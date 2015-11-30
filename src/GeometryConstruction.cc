@@ -15,7 +15,7 @@
 #include "G4SystemOfUnits.hh"
 #include "G4NistManager.hh"
 
-
+G4double water_volvol_ratio = 0.1;
 
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo....
 
@@ -58,7 +58,6 @@ G4VPhysicalVolume* GeometryConstruction::Construct()
   G4Material* materialSoil = new G4Material("Soil",densitySoil
 		  ,2);  //number of components
 
-  G4double water_volvol_ratio = 0.1;
   G4double densityWater = 1*g/cm3;
   G4double water_mass_ratio =
 	  densityWater * water_volvol_ratio / 
