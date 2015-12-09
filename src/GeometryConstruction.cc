@@ -1,6 +1,7 @@
 // GeometryConstruction.cc
 
 #include "GeometryConstruction.hh"
+//#include "ScorerSD.hh"
 
 #include "G4Material.hh"
 #include "G4Element.hh"
@@ -14,6 +15,7 @@
 #include "G4PhysicalConstants.hh"
 #include "G4SystemOfUnits.hh"
 #include "G4NistManager.hh"
+//#include "G4SDManager.hh"
 
 G4double water_volvol_ratio = 0.1;
 
@@ -101,6 +103,35 @@ G4VPhysicalVolume* GeometryConstruction::Construct()
 			  0,
 			  false,
 			  checkOverlaps);
+
+  G4double scorer_sizeZ = 5.*cm;
+  G4double scorer_sizeXY = soil_sizeXY;
+  //distance from soil
+  G4double scorer_h = 2.*m;
+  G4double scorer_z = 2*soil_sizeZ - world_sizeZ + scorer_h + scorer_sizeZ;
+
+  G4Box* solidScorer =
+	  new G4Box("Soil", scorer_sizeXY,scorer_sizeXY, scorer_sizeZ);
+
+  G4LogicalVolume* logicScorer =
+	  new G4LogicalVolume(solidScorer, air, "Scorer");
+
+  physSoil = 
+	  new G4PVPlacement(0,
+			  G4ThreeVector(0,0,scorer_z),
+			  logicScorer,
+			  "Scorer",
+			  logicWorld,
+			  0,
+			  false,
+			  checkOverlaps);
+
+// DETECTOR
+/*  G4SDManager* SDman = G4SDManager::GetSDMpointer();
+  ScorerSD* aScorerSD = new ScorerSD("moisture/scorer");
+  SDman->AddNewDetector( aScorerSD );
+  SetSensitiveDetector("Scorer", aScorerSD, true);
+  */
 
   return physWorld;
 }

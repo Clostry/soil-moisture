@@ -1,0 +1,31 @@
+/run/initialize
+/run/verbose 0
+
+########################################
+#
+# define general particle source
+#
+/gps/particle neutron
+
+#rectangle plane source
+/gps/pos/type Plane
+/gps/pos/shape Rectangle
+/gps/pos/centre 0 0 5 m
+/gps/pos/halfx 5. m
+/gps/pos/halfy 5. m
+
+/gps/ang/type planar
+/gps/direction 0 0 -1
+
+# power-law energy distr.
+/gps/ene/type Pow
+/gps/ene/min 0.01 eV
+/gps/ene/max 10. GeV
+/gps/ene/alpha -1.
+
+########################################
+#
+# start beam
+#
+/run/printProgress 1000
+/run/beamOn 100000

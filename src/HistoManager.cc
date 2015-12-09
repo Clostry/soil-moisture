@@ -4,93 +4,106 @@
 #include "G4UnitsTable.hh"
 #include "G4SystemOfUnits.hh"
 
+
+
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
 
 HistoManager::HistoManager()
-  : fFileName("exgps")
+ :fFileName("moisture"),
+  fFactoryOn(false)
 {
-  Book();
 }
 
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
 
 HistoManager::~HistoManager()
+{}
+
+//....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
+
+void HistoManager::FillNtuple1(G4double x, G4double y, G4double e)
 {
-  delete G4AnalysisManager::Instance();
+  G4AnalysisManager* analysisManager = G4AnalysisManager::Instance();
+
+  // Fill 1st ntuple ( id = 0)
+  analysisManager->FillNtupleDColumn(0, 0, x);
+  analysisManager->FillNtupleDColumn(0, 1, y);
+  analysisManager->FillNtupleDColumn(0, 2, e);
+  analysisManager->AddNtupleRow(0);
 }
 
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
 
-void HistoManager::Book()
+void HistoManager::FillNtuple2(G4double x, G4double y, G4double z, G4double e)
 {
+  G4AnalysisManager* analysisManager = G4AnalysisManager::Instance();
+
+  // Fill 2nd ntuple ( id = 1)
+  analysisManager->FillNtupleDColumn(1, 0, x);
+  analysisManager->FillNtupleDColumn(1, 1, y);
+  analysisManager->FillNtupleDColumn(1, 2, z);
+  analysisManager->FillNtupleDColumn(1, 3, e);
+  analysisManager->AddNtupleRow(1);
+}
+ 
+//....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
+//
+void HistoManager::Book()
+{ 
   // Create or get analysis manager
   // The choice of analysis technology is done via selection of a namespace
   // in HistoManager.hh
+  G4AnalysisManager* analysisManager = G4AnalysisManager::Instance();
+  analysisManager->SetVerboseLevel(1);
+
+  // Create directories 
+//  analysisManager->SetHistoDirectoryName("histo");
+//  analysisManager->SetNtupleDirectoryName("ntuple");
+
+  // Open an output file
   //
-  G4AnalysisManager* analysis = G4AnalysisManager::Instance();
+  G4bool fileOpen = analysisManager->OpenFile(fFileName);
+  if (! fileOpen) {
+    G4cerr << "\n---> HistoManager::Book(): cannot open "
+           << analysisManager->GetFileName() << G4endl;
+    return;
+  }
+
+  // Create 1st ntuple (id = 0)
+  analysisManager->CreateNtuple("Ntuple1", "Neutroni primari");
+  analysisManager->CreateNtupleDColumn("x");    // column Id = 0
+  analysisManager->CreateNtupleDColumn("y");    // column Id = 1
+  analysisManager->CreateNtupleDColumn("Ekin"); // column Id = 2
+  analysisManager->FinishNtuple();
+
+  // Create 2nd ntuple (id = 1)
+  analysisManager->CreateNtuple("Ntuple2", "Neutroni rimbalzati");
+  analysisManager->CreateNtupleDColumn("x");    // column Id = 0
+  analysisManager->CreateNtupleDColumn("y");    // column Id = 1
+  analysisManager->CreateNtupleDColumn("z");    // column Id = 2
+  analysisManager->CreateNtupleDColumn("Ekin"); // column Id = 3
+  analysisManager->FinishNtuple();
+
+  fFactoryOn = true;
   
-  analysis->SetFileName(fFileName);
-  analysis->SetVerboseLevel(1);
-  analysis->SetActivation(true);     //enable inactivation of histos, nTuples
-    
-  // Default values (to be reset via /analysis/h1/set command)               
-  G4int nbins = 100;
-  G4double vmin = 0.;
-  G4double vmax = 100.;
+  G4cout << "\n----> Output file is open in " 
+         << analysisManager->GetFileName() << "." 
+         << analysisManager->GetFileType() << G4endl;
 
-  // Create all histograms as inactivated 
-  // as we have not yet set nbins, vmin, vmax
-  //
-  analysis->SetHistoDirectoryName("histo");  
-  analysis->SetFirstHistoId(1);
-    
-  G4int id = analysis->CreateH1("h1.1","kinetic energy", nbins, vmin, vmax);
-  analysis->SetH1Activation(id, false);
-    
-  id = analysis->CreateH1("h1.2","vertex dist dN/dv = f(r)", nbins, vmin, vmax);
-  analysis->SetH1Activation(id, false);
-
-  id = analysis->CreateH1("h1.3","direction: cos(theta)", nbins, vmin, vmax);
-  analysis->SetH1Activation(id, false);
-
-  id = analysis->CreateH1("h1.4","direction: phi", nbins, vmin, vmax);
-  analysis->SetH1Activation(id, false);  
-
-  id = analysis->CreateH1("h1.5","Energia", 100, 0, 10*GeV);
-  analysis->SetH1Activation(id, false);  
-  // histos 2D
-  //
-  id = analysis->CreateH2("h2.1","vertex: XY",nbins,vmin,vmax, nbins,vmin,vmax);
-  analysis->SetH2Activation(id, false);
-
-  id = analysis->CreateH2("h2.2","vertex: YZ",nbins,vmin,vmax, nbins,vmin,vmax);
-  analysis->SetH2Activation(id, false);
-
-  id = analysis->CreateH2("h2.3","vertex: ZX",nbins,vmin,vmax, nbins,vmin,vmax);
-  analysis->SetH2Activation(id, false);
-
-  id = analysis->CreateH2("h2.4","direction: phi-cos(theta)",
-                                          nbins,vmin,vmax, nbins,vmin,vmax);
-  analysis->SetH2Activation(id, false);
-
-  id = analysis->CreateH2("h2.5","direction: phi-theta",
-                                          nbins,vmin,vmax, nbins,vmin,vmax);
-  analysis->SetH2Activation(id, false);
-
-  // nTuples
-  //
-  analysis->SetNtupleDirectoryName("ntuple");
-  analysis->SetFirstNtupleId(1);       
-  analysis->CreateNtuple("101", "Primary Particle Tuple");
-  analysis->CreateNtupleIColumn("particleID");    //column 0
-  analysis->CreateNtupleDColumn("Ekin");          //column 1
-  analysis->CreateNtupleDColumn("posX");          //column 2
-  analysis->CreateNtupleDColumn("posY");          //column 3
-  analysis->CreateNtupleDColumn("posZ");          //column 4
-  analysis->CreateNtupleDColumn("dirTheta");      //column 5
-  analysis->CreateNtupleDColumn("dirPhi");        //column 6
-  analysis->CreateNtupleDColumn("weight");        //column 7
-  analysis->FinishNtuple(); 
 }
 
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
+
+void HistoManager::Save()
+{
+ if (! fFactoryOn) return;
+
+  G4AnalysisManager* analysisManager = G4AnalysisManager::Instance();
+  analysisManager->Write();
+  analysisManager->CloseFile();
+
+  G4cout << "\n----> Histograms and ntuples are saved\n" << G4endl;
+
+  delete G4AnalysisManager::Instance();
+  fFactoryOn = false;
+}

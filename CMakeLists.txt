@@ -44,6 +44,7 @@ target_link_libraries(moisture ${Geant4_LIBRARIES})
 set(MOISTURE_SCRIPTS
   vis.mac
   scoring.mac
+  run.mac
   )
 
 foreach(_script ${MOISTURE_SCRIPTS})

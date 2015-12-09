@@ -1,0 +1,43 @@
+// TrackingAction.cc
+
+#include "TrackingAction.hh"
+#include "HistoManager.hh"
+
+#include "G4Track.hh"
+#include "G4SystemOfUnits.hh"
+#include "G4PhysicalConstants.hh"
+
+//....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo....
+
+TrackingAction::TrackingAction(GeometryConstruction* geometry, HistoManager *histo)
+  :G4UserTrackingAction(),
+   fGeom(geometry),
+   fHisto(histo)
+{}
+
+//....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo....
+
+TrackingAction::~TrackingAction()
+{}
+
+//....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo....
+
+void TrackingAction::PreUserTrackingAction(const G4Track* track)
+{
+  if (track->GetParentID() == 0)
+  {
+    //  G4int pid               = track->GetDynamicParticle()->GetPDGcode();
+    G4double ekin           = track->GetKineticEnergy();
+    G4ThreeVector vertex    = track->GetPosition();
+    G4ThreeVector direction = track->GetMomentumDirection();
+    //  G4double weight         = track->GetWeight();
+
+    //  G4cout << track->GetParentID() << " " << track->GetTrackID() << G4endl;
+
+    G4double x = vertex.x(), y = vertex.y(), z = vertex.z();
+
+    fHisto->FillNtuple1(x,y,ekin);
+  }
+}
+
+//....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo....

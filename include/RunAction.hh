@@ -14,14 +14,17 @@ class HistoManager;
 class RunAction : public G4UserRunAction
 {
   public:
-   RunAction();
+   RunAction(HistoManager*);
   ~RunAction();
 
    virtual void BeginOfRunAction(const G4Run*);
    virtual void EndOfRunAction(const G4Run*);
 
+   G4int GetCounts();
+
   private:
    HistoManager* fHistoManager;
+   G4int fCounts;
 };
 
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......

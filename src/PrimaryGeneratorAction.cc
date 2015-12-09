@@ -12,9 +12,10 @@
 
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
 
-PrimaryGeneratorAction::PrimaryGeneratorAction()
+PrimaryGeneratorAction::PrimaryGeneratorAction(HistoManager* histo)
  : G4VUserPrimaryGeneratorAction(),
-   fParticleGun(0)
+   fParticleGun(0),
+   fHisto(histo)
 {
    fParticleGun = new G4GeneralParticleSource();
 }
@@ -31,11 +32,10 @@ PrimaryGeneratorAction::~PrimaryGeneratorAction()
 void PrimaryGeneratorAction::GeneratePrimaries(G4Event* anEvent)
 {
   fParticleGun->GeneratePrimaryVertex(anEvent);
-  G4AnalysisManager* analysisManager = G4AnalysisManager::Instance();
   G4double energy = fParticleGun->GetParticleEnergy();
-  analysisManager->FillH1(5,energy);
+  G4ThreeVector pos = fParticleGun->GetParticlePosition();
 
-//  G4cout << "Generata particella con energia: " << fParticleGun->GetParticleEnergy() << G4endl;
+  fHisto->FillNtuple1(pos.x(),pos.y(),energy);
 }
 
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo....

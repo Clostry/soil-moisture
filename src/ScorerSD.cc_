@@ -1,0 +1,46 @@
+#include "ScorerSD.hh"
+#include "G4HCofThisEvent.hh"
+#include "G4Step.hh"
+#include "G4ThreeVector.hh"
+#include "G4SDManager.hh"
+#include "G4ios.hh"
+
+//....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
+
+ScorerSD::ScorerSD(const G4String& name) 
+ : G4VSensitiveDetector(name)
+{}
+
+ScorerSD::~ScorerSD() 
+{}
+
+G4bool ScorerSD::ProcessHits(G4Step* aStep, G4TouchableHistory*ROhist)
+{ 
+
+  G4StepPoint* point = aStep->GetPreStepPoint();	
+  if(point->GetStepStatus()==fGeomBoundary)
+  {
+    G4cout << "**************boundary hit!!\n";
+  }
+
+
+ /* // energy deposit
+  G4double edep = aStep->GetTotalEnergyDeposit();
+
+  if (edep==0.) return false;
+
+  B2TrackerHit* newHit = new B2TrackerHit();
+
+  newHit->SetTrackID  (aStep->GetTrack()->GetTrackID());
+  newHit->SetChamberNb(aStep->GetPreStepPoint()->GetTouchableHandle()
+                                               ->GetCopyNumber());
+  newHit->SetEdep(edep);
+  newHit->SetPos (aStep->GetPostStepPoint()->GetPosition());
+
+  fHitsCollection->insert( newHit );
+
+  //newHit->Print();
+*/
+  return true;
+
+}
