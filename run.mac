@@ -1,5 +1,7 @@
-/run/initialize
-/run/verbose 0
+/control/verbose 2
+/run/verbose 2
+/event/verbose 0
+/tracking/verbose 0
 
 ########################################
 #
@@ -20,7 +22,7 @@
 # power-law energy distr.
 /gps/ene/type Pow
 /gps/ene/min 0.01 eV
-/gps/ene/max 10. GeV
+/gps/ene/max 10. MeV
 /gps/ene/alpha -1.
 
 ########################################

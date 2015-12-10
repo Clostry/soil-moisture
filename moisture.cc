@@ -55,6 +55,8 @@ int main(int argc,char** argv) {
 //  runManager->SetUserInitialization(new PhysicsList);
   
   runManager->SetUserInitialization(new ActionInitialization(geometry));
+
+  runManager->Initialize();
     
 #ifdef G4VIS_USE
   // visualization manager
